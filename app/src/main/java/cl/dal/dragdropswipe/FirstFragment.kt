@@ -1,11 +1,11 @@
 package cl.dal.dragdropswipe
 
+import android.graphics.Rect
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +28,7 @@ class FirstFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
@@ -41,7 +41,9 @@ class FirstFragment : Fragment() {
         adapter = MyListAdapter()
         adapter.setList(getList())
 
-        val helper = Helper(adapter)
+        binding.rvListing.addItemDecoration(MarginItemDecoration(resources.getDimensionPixelSize(R.dimen.margin)))
+
+        val helper = Helper(adapter, requireContext())
         ItemTouchHelper(helper).attachToRecyclerView(binding.rvListing)
 
         binding.rvListing.adapter = adapter
@@ -106,13 +108,33 @@ class MyListAdapter :
     }
 
     override fun onItemDismiss(position: Int) {
-        TODO("Not yet implemented")
+        val l = currentList.toMutableList()
+        l.removeAt(position)
+        submitList(l)
     }
 
     private fun <E> MutableList<E>.move(fromPosition: Int, toPosition: Int) {
         val item = get(fromPosition)
         removeAt(fromPosition)
         add(toPosition, item)
+    }
+}
+
+
+class MarginItemDecoration(private val spaceSize: Int) : RecyclerView.ItemDecoration() {
+    override fun getItemOffsets(
+        outRect: Rect, view: View,
+        parent: RecyclerView,
+        state: RecyclerView.State
+    ) {
+        with(outRect) {
+            if (parent.getChildAdapterPosition(view) == 0) {
+                top = spaceSize
+            }
+            left = spaceSize
+            right = spaceSize
+            bottom = spaceSize
+        }
     }
 }
 
